@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Dashboard</title>
+    <style>
+        .category { margin-bottom: 20px; }
+        .widget { border: 1px solid #ccc; padding: 10px; margin: 5px 0; }
+        .widget .remove { cursor: pointer; color: red; }
+    </style>
+</head>
+<body>
+    <input type="text" id="search" placeholder="Search widgets..." oninput="searchWidgets()">
+    <div id="dashboard"></div>
+    <button onclick="addWidget()">+ Add Widget</button>
+
+    <script>
+        let dashboardData = {
+            "categories": [
+                {
+                    "name": "CSPM Executive Dashboard",
+                    "widgets": [
+                        { "name": "Widget 1", "text": "Random text for Widget 1" },
+                        { "name": "Widget 2", "text": "Random text for Widget 2" }
+                    ]
+                }
+            ]
+        };
+
+        function renderDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            dashboardData.categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = <h2>${category.name}</h2>;
+                category.widgets.forEach((widget, index) => {
+                    const widgetDiv = document.createElement('div');
+                    widgetDiv.className = 'widget';
+                    widgetDiv.innerHTML = `
+                        <h3>${widget.name}</h3>
+                        <p>${widget.text}</p>
+                        <span class="remove" onclick="removeWidget('${category.name}', ${index})">x</span>
+                    `;
+                    categoryDiv.appendChild(widgetDiv);
+                });
+                dashboard.appendChild(categoryDiv);
+            });
+        }
+
+        function addWidget() {
+            const category = prompt('Enter category name:');
+            const widgetName = prompt('Enter widget name:');
+            const widgetText = prompt('Enter widget text:');
+            const categoryIndex = dashboardData.categories.findIndex(cat => cat.name === category);
+            if (categoryIndex !== -1) {
+                dashboardData.categories[categoryIndex].widgets.push({ name: widgetName, text: widgetText });
+            } else {
+                dashboardData.categories.push({ name: category, widgets: [{ name: widgetName, text: widgetText }] });
+            }
+            renderDashboard();
+        }
+
+        function removeWidget(categoryName, widgetIndex) {
+            const categoryIndex = dashboardData.categories.findIndex(cat => cat.name === categoryName);
+            if (categoryIndex !== -1) {
+                dashboardData.categories[categoryIndex].widgets.splice(widgetIndex, 1);
+                renderDashboard();
+            }
+        }
+
+        function searchWidgets() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            dashboardData.categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = <h2>${category.name}</h2>;
+                category.widgets.forEach((widget, index) => {
+                    if (widget.name.toLowerCase().includes(query) || widget.text.toLowerCase().includes(query)) {
+                        const widgetDiv = document.createElement('div');
+                        widgetDiv.className = 'widget';
+                        widgetDiv.innerHTML = `
+                            <h3>${widget.name}</h3>
+                            <p>${widget.text}</p>
+                            <span class="remove" onclick="removeWidget('${category.name}', ${index})">x</span>
+                        `;
+                        categoryDiv.appendChild(widgetDiv);
+                    }
+                });
+                dashboard.appendChild(categoryDiv);
+            });
+        }
+
+        renderDashboard();
+    </script>
+</body>
+</html>
